@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+    <title>Wallet | </title>
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+    <meta http-equiv="refresh" content="305">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+    <script
+    src="https://code.jquery.com/jquery-3.2.1.min.js"
+    integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous">
+    </script>
+</head>
+<body>
+    <div id="total"></div>
+    <div id="prices"><h3>Current Prices</h3></div>
+    <div id="wallet"><h3>Wallet</h3></div>
+
+    <script type="text/javascript" >
+        var wallet;
+        var oldTotal = 0;
+
+        $.get('wallet.txt', function(data) {
+            wallet = JSON.parse(data);
+            console.log(wallet);
+
+            wallet.forEach(function(wallet) {
+                    oldTotal += wallet.value;
+            });
+            oldTotal = Math.round(100*oldTotal)/100;
+            console.log(oldTotal);
+
+        }, 'text');
+
+        const walletDiv = document.getElementById('wallet');
+        const totalDiv = document.getElementById('total');
+        const pricesDiv = document.getElementById('prices');
+
+        const url = 'https://api.coinmarketcap.com/v1/ticker/?limit=0';
+        $.getJSON(url, function(data) {
+            data.forEach(function(ticker) {
+                wallet.forEach(function(wallet) {
+                    if (ticker.id == wallet.id) {
+                        wallet.value = wallet.holding*ticker.price_usd;
+                        // round to nearest hundredth
+                        wallet.value = Math.round(wallet.value * 100) / 100;
+                        let roundedTickerPrice = Math.round(ticker.price_usd * 100) / 100;
+                        walletDiv.innerHTML += wallet.id + ", " + wallet.name+ ": " + wallet.value + "<br /><br />";
+                        pricesDiv.innerHTML += wallet.id + ": " + roundedTickerPrice + "<br /><br />";
+                    }
+                });
+            });
+
+            var total = 0;
+            wallet.forEach(function(wallet) {
+                    total += wallet.value;
+            });
+            total = Math.round(100*total)/100;
+            console.log(total);
+            totalDiv.innerHTML += "<h1>" + total + "</h1>";
+            document.title = "Wallet | " + total;
+
+            var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+            link.type = 'image/x-icon';
+            link.rel = 'shortcut icon';
+            if (oldTotal < total) {
+                link.href = 'favicon-gain.png';
+                document.body.setAttribute("style","background-color: #50c878");
+            }
+            else if (oldTotal > total) {
+                link.href = 'favicon-loss.png';
+                document.body.setAttribute("style","background-color: #c85050");
+            }
+            else {
+                link.href = 'favicon.png';
+                document.body.setAttribute("style","background-color: #ffffff");
+            }
+            document.getElementsByTagName('head')[0].appendChild(link);
+
+
+            var str_json = JSON.stringify(wallet);
+            console.log(str_json);
+
+            $.post("JSON_Handler.php",str_json,true);
+        });
+    </script>
+</body>
+</html>

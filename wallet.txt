@@ -1,0 +1,1 @@
+[{"id":"bitcoin","name":"paper","holding":0.02185281,"value":204.27},{"id":"bitcoin","name":"coinbase","holding":0.1287,"value":1203.05},{"id":"ethereum","name":"paper","holding":0.00118151,"value":0.22},{"id":"litecoin","name":"paper","holding":0.00491673,"value":0.31}]
